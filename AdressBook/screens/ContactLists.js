@@ -36,15 +36,14 @@ class ContactLists extends PureComponent {
     }
     searchText = (enteredText) => {
         this.setState({ searchContactName: enteredText });
-        let text = enteredText.toLowerCase()
+        let text = enteredText
         let allContactListsData = this.state.allContactsData
         let filteredName = allContactListsData.filter((item) => {
-            return item.name.first.toLowerCase().match(text)
+            return item.name.first.match(text)
         })
         if (!text || text === '') {
-            this.setState({
-                allContactsData: this.state.allContactsData
-            })
+            this.setState({ page: 1 })
+            this.fetchContactData();
         } else if (!Array.isArray(filteredName) && !filteredName.length) {
             // set no data flag to true so as to render flatlist conditionally
             this.setState({
@@ -56,6 +55,7 @@ class ContactLists extends PureComponent {
                 allContactsData: filteredName
             })
         }
+        console.log("Contact length Data Flatlist = ", allContactListsData.length);
     }
     render() {
         const { allContactsData } = this.state;
@@ -84,36 +84,26 @@ class ContactLists extends PureComponent {
 const ContactFlatlist = ({ loadMoreContactData, allContactsData, isSearchedData }) => {
     return (
         <>
-            {
-                (isSearchedData === true)
-                    ?
-                    (
-                        <FlatList
-                            showsVerticalScrollIndicator={true}
-                            initialNumToRender={50}
-                            windowSize={21}
-                            maxToRenderPerBatch={50}
-                            updateCellsBatchingPeriod={50}
-                            removeClippedSubviews={true}
-                            onEndReached={() => loadMoreContactData()}
-                            onEndReachedThreshold={0.8}
-                            data={allContactsData.sort((a, b) => a.name.first.localeCompare(b.name.first))}
-                            style={{ marginLeft: UIConstants.vw * 8, marginRight: UIConstants.vw * 8, }}
-                            renderItem={({ item }) =>
-                                <TouchableOpacity style={{ backgroundColor: '#fff', elevation: UIConstants.vw * 2, borderRadius: UIConstants.vw * 12, margin: UIConstants.vw * 8, }}>
-                                    <Text style={{ fontSize: UIConstants.vw * 16, fontWeight: 'bold', padding: UIConstants.vw * 12, color: '#000' }}>{item && item.name && item.name.first || ''} {item && item.name && item.name.last || ''}</Text>
-                                </TouchableOpacity>
-                            }
-                            keyExtractor={item => item.login.uuid}
-                        />
-                    )
-                    :
-                    (
-                        <></>
-                    )
-            }
-
+            <FlatList
+                showsVerticalScrollIndicator={true}
+                initialNumToRender={50}
+                windowSize={21}
+                maxToRenderPerBatch={50}
+                updateCellsBatchingPeriod={50}
+                removeClippedSubviews={true}
+                onEndReached={() => loadMoreContactData()}
+                onEndReachedThreshold={0.8}
+                data={allContactsData.sort((a, b) => a.name.first.localeCompare(b.name.first))}
+                style={{ marginLeft: UIConstants.vw * 8, marginRight: UIConstants.vw * 8, }}
+                renderItem={({ item }) =>
+                    <TouchableOpacity style={{ backgroundColor: '#fff', elevation: UIConstants.vw * 2, borderRadius: UIConstants.vw * 12, margin: UIConstants.vw * 8, }}>
+                        <Text style={{ fontSize: UIConstants.vw * 16, fontWeight: 'bold', padding: UIConstants.vw * 12, color: '#000' }}>{item && item.name && item.name.first || ''} {item && item.name && item.name.last || ''}</Text>
+                    </TouchableOpacity>
+                }
+                keyExtractor={item => item.login.uuid}
+            />
         </>
+
     );
 }
 
