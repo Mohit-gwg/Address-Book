@@ -1,10 +1,16 @@
 import React, { PureComponent } from 'react'
-import { Text, View, FlatList, TouchableOpacity, SectionList, TextInput, I18nManager, Image } from 'react-native';
+import { Text, View, FlatList, TouchableOpacity, TouchableWithoutFeedback, TextInput, I18nManager, Image, Animated, StyleSheet } from 'react-native';
 import { UIConstants } from '../../AdressBook/screens/staticFile';
 import * as RNLocalize from "react-native-localize";
 import LinearGradient from 'react-native-linear-gradient';
+import Modal from "react-native-modal";
 import i18n from "i18n-js";
 import memoize from "lodash.memoize";
+
+let levelScrollView = null;
+const HEADER_MAX_HEIGHT = UIConstants.vw * 150;
+const HEADER_MIN_HEIGHT = UIConstants.vw * 60;
+const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
 const translationGetters = {
     en: () => require("../../AdressBook/common/languageSupport/en.json"),
@@ -37,6 +43,8 @@ class ContactLists extends PureComponent {
         setI18nConfig();
         this.state = {
             enteredText: '',
+            showProfileDetailPoppup: false,
+            scrollY: new Animated.Value(0),
             page: 1,
             searchContactName: '',
             allContactsData: [],
@@ -51,6 +59,14 @@ class ContactLists extends PureComponent {
     componentWillUnmount() {
         RNLocalize.removeEventListener("change", this.handleLocalizationChange);
     }
+    showProfileDetailPoppup_Modal = (visible) => {
+        if (visible == true) {
+            this.setState({ showProfileDetailPoppup: true });
+        }
+        else {
+            this.setState({ showProfileDetailPoppup: false });
+        }
+    }
     handleLocalizationChange = () => {
         setI18nConfig();
         this.forceUpdate();
@@ -58,7 +74,6 @@ class ContactLists extends PureComponent {
     fetchContactData = () => {
         fetch(`https://randomuser.me/api/?results=1000&page=${this.state.page}`).then((response) =>
             response.json()).then((responseData) => {
-                console.log(responseData.results[0]);
                 this.setState({ allContactsData: [...this.state.allContactsData, ...responseData.results] });
             });
     }
@@ -92,24 +107,44 @@ class ContactLists extends PureComponent {
             })
         }
     }
+    scrollToTop = () => {
+        this._flatlist.scrollTo({ x: 845, y: 845, animated: true });
+    }
     render() {
         const { allContactsData } = this.state;
         const { searchContactName } = this.state;
         const { isSearchedData } = this.state;
+        const { showProfileDetailPoppup } = this.state;
+        const { scrollY } = this.state;
         const images = {
             profileImage: require('../../AdressBook/images/user.png'),
             searchImage: require('../../AdressBook/images/search.png'),
         }
+        const headerHeight = this.state.scrollY.interpolate({
+            inputRange: [0, HEADER_SCROLL_DISTANCE],
+            outputRange: [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
+            extrapolate: 'clamp',
+        });
+        const imageOpacity = this.state.scrollY.interpolate({
+            inputRange: [0, HEADER_SCROLL_DISTANCE / 2, HEADER_SCROLL_DISTANCE],
+            outputRange: [1, 1, 0],
+            extrapolate: 'clamp',
+        });
+        const imageTranslate = this.state.scrollY.interpolate({
+            inputRange: [0, HEADER_SCROLL_DISTANCE],
+            outputRange: [0, -50],
+            extrapolate: 'clamp',
+        });
         return (
             <View style={{ flex: 1, backgroundColor: '#B3E5FC' }}>
-                <View style={{ width: '100%', height: UIConstants.vw * 140, backgroundColor: '#0288D1', borderBottomLeftRadius: UIConstants.vw * 80, borderBottomRightRadius: UIConstants.vw * 80, elevation: UIConstants.vw * 4, borderLeftWidth: UIConstants.vw * 2, borderRightWidth: UIConstants.vw * 2, borderBottomWidth: UIConstants.vw * 2, borderColor: '#fff', alignItems: 'center' }}>
+                <Animated.View style={[styles.mainHeader, { height: headerHeight }]}>
                     <View style={{ backgroundColor: '#01579B', width: '100%', height: UIConstants.vw * 50, alignItems: 'center', justifyContent: 'center', elevation: UIConstants.vw * 2, flexDirection: 'row' }}>
-                        <TouchableOpacity style={{ marginLeft: UIConstants.vw * 8, position: 'absolute', left: 0 }}>
+                        <TouchableOpacity style={{ marginLeft: UIConstants.vw * 16, position: 'absolute', left: 0 }} onPress={() => this.showProfileDetailPoppup_Modal(!showProfileDetailPoppup)}>
                             <Image style={{ width: 30, height: 30, borderWidth: UIConstants.vw * 1, borderColor: '#fff', borderRadius: UIConstants.vw * 15 }} source={images.profileImage} />
                         </TouchableOpacity>
                         <Text style={{ fontSize: UIConstants.vw * 20, fontWeight: 'bold', color: '#fff', fontFamily: 'CircularStd-Book' }}>{translate("contactLists")}</Text>
                     </View>
-                    <View style={{ marginTop: UIConstants.vw * 20, backgroundColor: '#fff', alignSelf: 'stretch', marginLeft: UIConstants.vw * 45, marginRight: UIConstants.vw * 45, borderBottomLeftRadius: UIConstants.vw * 22, borderTopRightRadius: UIConstants.vw * 22, flexDirection: 'row', alignItems: 'center', height: UIConstants.vw * 50 }}>
+                    <Animated.View style={[styles.subHeader, { opacity: imageOpacity, transform: [{ translateY: imageTranslate }] }]}>
                         <LinearGradient
                             colors={['#F8BBD0', '#F48FB1']}
                             start={{ x: 0.0, y: 0.6 }} end={{ x: 0.2, y: 0.80 }}
@@ -126,20 +161,66 @@ class ContactLists extends PureComponent {
                             onChangeText={text => this.searchText(text)}
                             value={searchContactName}
                         />
+                    </Animated.View>
+                </Animated.View>
+                <ContactFlatlist scrollY={scrollY} loadMoreContactData={this.loadMoreContactData} allContactsData={allContactsData} isSearchedData={isSearchedData} />
+                <TouchableOpacity style={{ position: 'absolute', bottom: 0, left: 0, right: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', borderRadius: UIConstants.vw * 12, marginBottom: UIConstants.vw * 18, marginLeft: UIConstants.vw * 160, marginRight: UIConstants.vw * 160, elevation: UIConstants.vw * 2 }} onPress={() => this.scrollToTop()}>
+                    <Text style={{ fontSize: UIConstants.vw * 18, fontWeight: 'bold', color: '#F8BBD0', paddingTop: UIConstants.vw * 4, paddingBottom: UIConstants.vw * 4 }}>Button</Text>
+                </TouchableOpacity>
+                <Modal
+                    transparent={true}
+                    isVisible={showProfileDetailPoppup}
+                    useNativeDriver={true}
+                    animationOutTiming={50}
+                    animationInTiming={50}
+                    animationIn='fadeIn'
+                    animationOut='fadeOut'
+                    useNativeDriver={true}
+                    hideModalContentWhileAnimating={true}
+                    onRequestClose={() => {
+                        this.showProfileDetailPoppup_Modal(!showProfileDetailPoppup);
+                    }}
+                    customBackdrop={
+                        <TouchableWithoutFeedback onPress={() => this.showProfileDetailPoppup_Modal(!showProfileDetailPoppup)}>
+                            <View style={{ flex: 1, backgroundColor: '#000' }} />
+                        </TouchableWithoutFeedback>
+                    }
+                    style={{
+                        backgroundColor: 'transparent',
+                        marginTop: UIConstants.vw * 0,
+                        marginLeft: UIConstants.vw * 0,
+                        marginRight: UIConstants.vw * 0,
+                        marginBottom: UIConstants.vw * 0,
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                    }}>
+                    <View style={{
+                        padding: UIConstants.vw * 60,
+                        backgroundColor: '#fff',
+                        elevation: UIConstants.vw * 2,
+                        borderColor: '#9E9E9E',
+                        borderRadius: UIConstants.vw * 16
+                    }} >
+                        <Text style={{}}>Merci, votre présence{'\n'}est enregistree!</Text>
                     </View>
-                </View>
-                <ContactFlatlist loadMoreContactData={this.loadMoreContactData} allContactsData={allContactsData} isSearchedData={isSearchedData} />
+                </Modal>
             </View>
         );
     }
 }
-const ContactFlatlist = ({ loadMoreContactData, allContactsData }) => {
+const ContactFlatlist = ({ scrollY, loadMoreContactData, allContactsData }) => {
     return (
         <>
             <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: UIConstants.vw * 8 }}>
                 <FlatList
+                    ref={(ref) => { this._flatlist = ref; }}
                     showsVerticalScrollIndicator={true}
                     initialNumToRender={50}
+                    onScroll={Animated.event(
+                        [{ nativeEvent: { contentOffset: { y: scrollY } } }]
+                    )}
                     scrollEventThrottle={1}
                     numColumns={3}
                     windowSize={21}
@@ -164,5 +245,33 @@ const ContactFlatlist = ({ loadMoreContactData, allContactsData }) => {
 
     );
 }
+const styles = StyleSheet.create({
+    mainHeader: {
+        width: '100%',
+        height: UIConstants.vw * 140,
+        backgroundColor: '#0288D1',
+        borderBottomLeftRadius: UIConstants.vw * 80,
+        borderBottomRightRadius: UIConstants.vw * 80,
+        elevation: UIConstants.vw * 4,
+        borderLeftWidth: UIConstants.vw * 2,
+        borderRightWidth: UIConstants.vw * 2,
+        borderBottomWidth: UIConstants.vw * 2,
+        borderColor: '#fff',
+        alignItems: 'center',
+        overflow: 'hidden',
+    },
+    subHeader: {
+        marginTop: UIConstants.vw * 20,
+        backgroundColor: '#fff',
+        alignSelf: 'stretch',
+        marginLeft: UIConstants.vw * 45,
+        marginRight: UIConstants.vw * 45,
+        borderBottomLeftRadius: UIConstants.vw * 22,
+        borderTopRightRadius: UIConstants.vw * 22,
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: UIConstants.vw * 50
+    },
+});
 
 export default ContactLists;
