@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ImageBackground, View } from 'react-native';
+import { ImageBackground, View, Text } from 'react-native';
 import styles from '../../AdressBook/styles/AdressBookSplashScreen';
 
 class AdressBookSplashScreen extends Component {
@@ -17,15 +17,11 @@ class AdressBookSplashScreen extends Component {
     }
     render() {
         const images = {
-            backGroundImage: require('../../AdressBook/images/phone_background.jpg'),
+            // backGroundImage: require('../../AdressBook/images/phone_background.jpg'),
         }
         return (
             <View style={styles.mainContainer}>
-                <ImageBackground
-                    source={images.backGroundImage}
-                    style={styles.imageBackground}
-                >
-                </ImageBackground>
+                <Text>Splash Screen</Text>
             </View>
         );
     }
