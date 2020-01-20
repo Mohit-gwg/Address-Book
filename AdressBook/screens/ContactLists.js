@@ -7,7 +7,6 @@ import Modal from "react-native-modal";
 import i18n from "i18n-js";
 import memoize from "lodash.memoize";
 
-let levelScrollView = null;
 const HEADER_MAX_HEIGHT = UIConstants.vw * 150;
 const HEADER_MIN_HEIGHT = UIConstants.vw * 60;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
@@ -108,7 +107,7 @@ class ContactLists extends PureComponent {
         }
     }
     scrollToTop = () => {
-        this._flatlist.scrollTo({ x: 845, y: 845, animated: true });
+        this._flatlist.scrollToOffset({ x: 845, y: 845, animated: true });
     }
     render() {
         const { allContactsData } = this.state;
@@ -119,18 +118,19 @@ class ContactLists extends PureComponent {
         const images = {
             profileImage: require('../../AdressBook/images/user.png'),
             searchImage: require('../../AdressBook/images/search.png'),
+            topArrowImage: require('../../AdressBook/images/upArrowNew.png'),
         }
         const headerHeight = this.state.scrollY.interpolate({
             inputRange: [0, HEADER_SCROLL_DISTANCE],
             outputRange: [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
             extrapolate: 'clamp',
         });
-        const imageOpacity = this.state.scrollY.interpolate({
+        const subViewOpacity = this.state.scrollY.interpolate({
             inputRange: [0, HEADER_SCROLL_DISTANCE / 2, HEADER_SCROLL_DISTANCE],
             outputRange: [1, 1, 0],
             extrapolate: 'clamp',
         });
-        const imageTranslate = this.state.scrollY.interpolate({
+        const subViewTranslate = this.state.scrollY.interpolate({
             inputRange: [0, HEADER_SCROLL_DISTANCE],
             outputRange: [0, -50],
             extrapolate: 'clamp',
@@ -142,9 +142,9 @@ class ContactLists extends PureComponent {
                         <TouchableOpacity style={{ marginLeft: UIConstants.vw * 16, position: 'absolute', left: 0 }} onPress={() => this.showProfileDetailPoppup_Modal(!showProfileDetailPoppup)}>
                             <Image style={{ width: 30, height: 30, borderWidth: UIConstants.vw * 1, borderColor: '#fff', borderRadius: UIConstants.vw * 15 }} source={images.profileImage} />
                         </TouchableOpacity>
-                        <Text style={{ fontSize: UIConstants.vw * 20, fontWeight: 'bold', color: '#fff', fontFamily: 'CircularStd-Book' }}>{translate("contactLists")}</Text>
+                        <Text style={{ fontSize: UIConstants.vw * 20, fontWeight: 'bold', color: '#fff', fontFamily: 'CircularStd-Book', }}>{translate("contactLists")}</Text>
                     </View>
-                    <Animated.View style={[styles.subHeader, { opacity: imageOpacity, transform: [{ translateY: imageTranslate }] }]}>
+                    <Animated.View style={[styles.subHeader, { opacity: subViewOpacity, transform: [{ translateY: subViewTranslate }] }]}>
                         <LinearGradient
                             colors={['#F8BBD0', '#F48FB1']}
                             start={{ x: 0.0, y: 0.6 }} end={{ x: 0.2, y: 0.80 }}
@@ -163,26 +163,25 @@ class ContactLists extends PureComponent {
                         />
                     </Animated.View>
                 </Animated.View>
-                <ContactFlatlist scrollY={scrollY} loadMoreContactData={this.loadMoreContactData} allContactsData={allContactsData} isSearchedData={isSearchedData} />
-                <TouchableOpacity style={{ position: 'absolute', bottom: 0, left: 0, right: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', borderRadius: UIConstants.vw * 12, marginBottom: UIConstants.vw * 18, marginLeft: UIConstants.vw * 160, marginRight: UIConstants.vw * 160, elevation: UIConstants.vw * 2 }} onPress={() => this.scrollToTop()}>
-                    <Text style={{ fontSize: UIConstants.vw * 18, fontWeight: 'bold', color: '#F8BBD0', paddingTop: UIConstants.vw * 4, paddingBottom: UIConstants.vw * 4 }}>Button</Text>
+                <ContactFlatlist ref={r => this._flatlist = r} scrollY={scrollY} loadMoreContactData={this.loadMoreContactData} allContactsData={allContactsData} isSearchedData={isSearchedData} />
+                <TouchableOpacity style={{ position: 'absolute', bottom: 0, left: 0, right: 0, justifyContent: 'center', alignItems: 'center', marginBottom: UIConstants.vw * 18, marginLeft: UIConstants.vw * 160, marginRight: UIConstants.vw * 160 }} onPress={() => this.scrollToTop()}>
+                    <Image style={{ width: UIConstants.vw * 35, height: UIConstants.vw * 35, elevation: UIConstants.vw * 4 }} source={images.topArrowImage} />
                 </TouchableOpacity>
                 <Modal
                     transparent={true}
                     isVisible={showProfileDetailPoppup}
-                    useNativeDriver={true}
                     animationOutTiming={50}
                     animationInTiming={50}
+                    useNativeDriver={true}
                     animationIn='fadeIn'
                     animationOut='fadeOut'
-                    useNativeDriver={true}
                     hideModalContentWhileAnimating={true}
                     onRequestClose={() => {
                         this.showProfileDetailPoppup_Modal(!showProfileDetailPoppup);
                     }}
                     customBackdrop={
                         <TouchableWithoutFeedback onPress={() => this.showProfileDetailPoppup_Modal(!showProfileDetailPoppup)}>
-                            <View style={{ flex: 1, backgroundColor: '#000' }} />
+                            <View style={{ flex: 1, backgroundColor: '#fff' }} />
                         </TouchableWithoutFeedback>
                     }
                     style={{
@@ -197,7 +196,7 @@ class ContactLists extends PureComponent {
                         right: 0,
                     }}>
                     <View style={{
-                        padding: UIConstants.vw * 60,
+                        height: UIConstants.vw * 350,
                         backgroundColor: '#fff',
                         elevation: UIConstants.vw * 2,
                         borderColor: '#9E9E9E',
@@ -210,12 +209,12 @@ class ContactLists extends PureComponent {
         );
     }
 }
-const ContactFlatlist = ({ scrollY, loadMoreContactData, allContactsData }) => {
+const ContactFlatlist = React.forwardRef(({ scrollY, loadMoreContactData, allContactsData }, ref) => {
     return (
         <>
             <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: UIConstants.vw * 8 }}>
                 <FlatList
-                    ref={(ref) => { this._flatlist = ref; }}
+                    ref={ref}
                     showsVerticalScrollIndicator={true}
                     initialNumToRender={50}
                     onScroll={Animated.event(
@@ -245,6 +244,7 @@ const ContactFlatlist = ({ scrollY, loadMoreContactData, allContactsData }) => {
 
     );
 }
+)
 const styles = StyleSheet.create({
     mainHeader: {
         width: '100%',
