@@ -60,14 +60,26 @@ class ContactLists extends PureComponent {
     componentWillUnmount() {
         RNLocalize.removeEventListener("change", this.handleLocalizationChange);
     }
-    selectedContactProfileData = (visible) => {
+    selectedContactProfileData = (visible, selectedData) => {
         if (visible == true) {
-            this.props.profileDetailModal(true);
-            // this.setState({ showProfileDetailPoppup: true });
+            let selectedContactDetails = {
+                profileImage: selectedData && selectedData.picture && selectedData.picture.large || '',
+                firstName: selectedData && selectedData.name && selectedData.name.first || '',
+                lastName: selectedData && selectedData.name && selectedData.name.last || '',
+                age: selectedData && selectedData.dob && selectedData.dob.age || '',
+                cell: selectedData.cell,
+                landlineNumber: selectedData.phone,
+                email: selectedData.email,
+                street: selectedData && selectedData.location && selectedData.location.street.name || '',
+                city: selectedData && selectedData.location && selectedData.location.city || '',
+                state: selectedData && selectedData.location && selectedData.location.state || '',
+                postalCode: selectedData && selectedData.location && selectedData.location.postcode || '',
+            }
+            this.props.profileDetailModal(selectedContactDetails);
+            this.setState({ showProfileDetailPoppup: true });
         }
         else {
-            this.props.profileDetailModal(false);
-            //  this.setState({ showProfileDetailPoppup: false });
+            this.setState({ showProfileDetailPoppup: false });
         }
     }
     handleLocalizationChange = () => {
@@ -108,17 +120,20 @@ class ContactLists extends PureComponent {
         this._flatlist.scrollToOffset({ x: 845, y: 845, animated: true });
     }
     render() {
-        console.log("check redux stord data which pass through by reducers and taken by action = ", this.props.showProfileDetailPoppup);
+        console.log("check redux stord data which pass through by reducers and taken by action = ", this.props.selectedContactDetails);
         const { allContactsData } = this.state;
         const { searchContactName } = this.state;
-        //const { showProfileDetailPoppup } = this.state;
+        const { showProfileDetailPoppup } = this.state;
         const { scrollY } = this.state;
-        const { showProfileDetailPoppup } = this.props;
+        const { selectedContactDetails } = this.props;
         const images = {
             profileImage: require('../../AdressBook/images/user.png'),
             searchImage: require('../../AdressBook/images/search.png'),
             topArrowImage: require('../../AdressBook/images/upArrowNew.png'),
             girlImage: require('../../AdressBook/images/girl.png'),
+            emailImage: require('../../AdressBook/images/mail.png'),
+            phoneImage: require('../../AdressBook/images/phone.png'),
+            addressImage: require('../../AdressBook/images/address.png'),
         }
         const headerHeight = this.state.scrollY.interpolate({
             inputRange: [0, HEADER_SCROLL_DISTANCE],
@@ -136,7 +151,7 @@ class ContactLists extends PureComponent {
             extrapolate: 'clamp',
         });
         return (
-            <View style={{ flex: 1, backgroundColor: '#B3E5FC' }}>
+            <View style={{ flex: 1 }}>
                 <Animated.View style={[styles.mainHeader, { height: headerHeight }]}>
                     <View style={{ backgroundColor: '#01579B', width: '100%', height: UIConstants.vw * 50, alignItems: 'center', justifyContent: 'center', elevation: UIConstants.vw * 2, flexDirection: 'row' }}>
                         <TouchableOpacity style={{ marginLeft: UIConstants.vw * 16, position: 'absolute', left: 0 }}>
@@ -167,7 +182,7 @@ class ContactLists extends PureComponent {
                 <TouchableOpacity style={{ position: 'absolute', bottom: 0, left: 0, right: 0, justifyContent: 'center', alignItems: 'center', marginBottom: UIConstants.vw * 18, marginLeft: UIConstants.vw * 160, marginRight: UIConstants.vw * 160 }} onPress={() => this.scrollToTop()}>
                     <Image style={{ width: UIConstants.vw * 35, height: UIConstants.vw * 35, elevation: UIConstants.vw * 4 }} source={images.topArrowImage} />
                 </TouchableOpacity>
-                <ContactProfileModal showProfileDetailPoppup={showProfileDetailPoppup} selectedContactProfileData={this.selectedContactProfileData} girlImage={images.girlImage} />
+                <ContactProfileModal showProfileDetailPoppup={showProfileDetailPoppup} selectedContactProfileData={this.selectedContactProfileData} selectedContactDetails={selectedContactDetails} girlImage={images.girlImage} emailImage={images.emailImage} phoneImage={images.phoneImage} addressImage={images.addressImage} />
             </View>
         );
     }
@@ -194,8 +209,10 @@ const ContactFlatlist = React.forwardRef(({ scrollY, loadMoreContactData, allCon
                 data={allContactsData.sort((a, b) => a.name.first.localeCompare(b.name.first))}
                 style={{ marginLeft: UIConstants.vw * 8, marginRight: UIConstants.vw * 8 }}
                 renderItem={({ item }) =>
-                    <TouchableOpacity style={{ marginLeft: UIConstants.vw * 16, marginRight: UIConstants.vw * 16, alignItems: 'center', justifyContent: 'center' }} onPress={() => selectedContactProfileData(!showProfileDetailPoppup)}>
-                        <Image style={{ width: UIConstants.vw * 60, height: UIConstants.vw * 60, borderRadius: UIConstants.vw * 30, backgroundColor: '#eee', marginTop: UIConstants.vw * 16, borderWidth: 2, borderColor: "#F48FB1" }} source={{ uri: `${item && item.picture && item.picture.medium || ''}` }} />
+                    <TouchableOpacity style={{ marginLeft: UIConstants.vw * 16, marginRight: UIConstants.vw * 16, alignItems: 'center', justifyContent: 'center' }} onPress={() => selectedContactProfileData(!showProfileDetailPoppup, item)}>
+                        <View style={{ marginTop: UIConstants.vw * 16, backgroundColor: '#fff', elevation: 2, borderRadius: UIConstants.vw * 30 }}>
+                            <Image style={{ width: UIConstants.vw * 60, height: UIConstants.vw * 60, borderRadius: UIConstants.vw * 30, borderWidth: 2, borderColor: "#F48FB1" }} source={{ uri: `${item && item.picture && item.picture.medium || ''}` }} />
+                        </View>
                         <Text numberOfLines={1} style={{ fontSize: UIConstants.vw * 16, fontWeight: 'bold', color: '#F48FB1', marginTop: UIConstants.vw * 8, width: UIConstants.vw * 95 }}>{item && item.name && item.name.first || ''} {item && item.name && item.name.last || ''}</Text>
                         <Text numberOfLines={1} style={{ fontSize: UIConstants.vw * 12, fontWeight: 'bold', color: '#9E9E9E', marginTop: UIConstants.vw * 2 }}>{item.cell}</Text>
                     </TouchableOpacity>
@@ -206,7 +223,7 @@ const ContactFlatlist = React.forwardRef(({ scrollY, loadMoreContactData, allCon
     );
 }
 );
-const ContactProfileModal = ({ showProfileDetailPoppup, selectedContactProfileData, girlImage }) => {
+const ContactProfileModal = ({ showProfileDetailPoppup, selectedContactProfileData, selectedContactDetails, girlImage, emailImage, phoneImage, addressImage }) => {
     return (
         < Modal
             transparent={true}
@@ -226,12 +243,34 @@ const ContactProfileModal = ({ showProfileDetailPoppup, selectedContactProfileDa
                 </TouchableWithoutFeedback >
             }
             style={{ backgroundColor: 'transparent', marginTop: UIConstants.vw * 0, marginLeft: UIConstants.vw * 0, marginRight: UIConstants.vw * 0, marginBottom: UIConstants.vw * 0, position: 'absolute', bottom: 0, left: 0, right: 0, }}>
-
             <View style={{ height: UIConstants.vw * 430, backgroundColor: 'transparent', alignItems: 'center' }}>
-                <View style={{ height: UIConstants.vw * 350, backgroundColor: '#fff', borderTopRightRadius: UIConstants.vw * 160, position: 'absolute', bottom: 0, left: 0, right: 0, justifyContent: 'center', alignItems: 'center' }} >
+                <View style={{ height: UIConstants.vw * 350, borderTopRightRadius: UIConstants.vw * 160, position: 'absolute', bottom: 0, left: 0, right: 0, alignItems: 'center', backgroundColor: '#fff', justifyContent: 'center' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: UIConstants.vw * 28 }}>
+                        <Text style={{ fontSize: UIConstants.vw * 26, color: '#616161', fontFamily: 'CircularStd-Book' }}>{selectedContactDetails.firstName} {selectedContactDetails.lastName}</Text>
+                        <Text style={{ fontSize: UIConstants.vw * 26, color: '#616161', fontFamily: 'CircularStd-Book' }}>, </Text>
+                        <Text style={{ fontSize: UIConstants.vw * 26, color: '#F48FB1', fontFamily: 'CircularStd-Book' }}>{selectedContactDetails.age}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: UIConstants.vw * 24, marginTop: UIConstants.vw * 32, alignSelf: 'flex-start' }}>
+                        <Image style={{ width: UIConstants.vw * 25, height: UIConstants.vw * 25, marginRight: UIConstants.vw * 24 }} source={phoneImage} />
+                        <View style={{ alignItems: 'center' }}>
+                            <Text style={{ fontSize: UIConstants.vw * 18, color: '#f8bbd0', fontFamily: 'CircularStd-Book' }}>{selectedContactDetails.cell}</Text>
+                            <Text style={{ fontSize: UIConstants.vw * 16, color: '#bdbdbd', fontFamily: 'CircularStd-Book', alignSelf: 'flex-start', marginTop: UIConstants.vw * 2 }}>{selectedContactDetails.landlineNumber}</Text>
+                        </View>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: UIConstants.vw * 24, marginTop: UIConstants.vw * 24, alignSelf: 'flex-start' }}>
+                        <Image style={{ width: UIConstants.vw * 28, height: UIConstants.vw * 25, marginRight: UIConstants.vw * 24 }} source={emailImage} />
+                        <Text style={{ fontSize: UIConstants.vw * 18, color: '#f8bbd0', fontFamily: 'CircularStd-Book' }}>{selectedContactDetails.email}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: UIConstants.vw * 24, marginTop: UIConstants.vw * 24, alignSelf: 'flex-start' }}>
+                        <Image style={{ width: UIConstants.vw * 28, height: UIConstants.vw * 25, marginRight: UIConstants.vw * 24 }} source={addressImage} />
+                        <View style={{ alignItems: 'center' }}>
+                            <Text numberOfLines={2} style={{ fontSize: UIConstants.vw * 18, color: '#f8bbd0', fontFamily: 'CircularStd-Book', width: UIConstants.vw * 310 }}>{selectedContactDetails.street}, {selectedContactDetails.city}, {selectedContactDetails.state}</Text>
+                            <Text style={{ fontSize: UIConstants.vw * 16, color: '#bdbdbd', fontFamily: 'CircularStd-Book', alignSelf: 'flex-start', marginTop: UIConstants.vw * 2 }}>Postal Code - {selectedContactDetails.postalCode}</Text>
+                        </View>
+                    </View>
                 </View>
-                <View style={{ height: UIConstants.vw * 140, width: UIConstants.vw * 140, backgroundColor: '#fff', borderRadius: UIConstants.vw * 80, position: 'absolute', top: 0, justifyContent: 'center', alignItems: 'center', alignSelf: 'center', borderWidth: UIConstants.vw * 3, borderColor: '#F48FB1' }}>
-                    <Image style={{ width: UIConstants.vw * 134, height: UIConstants.vw * 134 }} source={girlImage} />
+                <View style={{ height: UIConstants.vw * 145, width: UIConstants.vw * 145, backgroundColor: '#fff', borderRadius: UIConstants.vw * 145 / 2, position: 'absolute', top: 0, justifyContent: 'center', alignItems: 'center', alignSelf: 'center', borderWidth: UIConstants.vw * 8, borderColor: '#fff', elevation: 2 }}>
+                    <Image style={{ width: UIConstants.vw * 134, height: UIConstants.vw * 134, borderRadius: UIConstants.vw * 134 / 2 }} source={{ uri: `${selectedContactDetails.profileImage}` }} />
                 </View>
             </View>
         </Modal >
@@ -253,22 +292,21 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     subHeader: {
-        marginTop: UIConstants.vw * 20,
+        marginTop: UIConstants.vw * 22,
         backgroundColor: '#fff',
         alignSelf: 'stretch',
-        marginLeft: UIConstants.vw * 45,
-        marginRight: UIConstants.vw * 45,
+        marginLeft: UIConstants.vw * 40,
+        marginRight: UIConstants.vw * 40,
         borderBottomLeftRadius: UIConstants.vw * 22,
         borderTopRightRadius: UIConstants.vw * 22,
         flexDirection: 'row',
         alignItems: 'center',
-        height: UIConstants.vw * 50
+        height: UIConstants.vw * 54
     },
 });
-
 const mapStateToProps = state => {
     return {
-        showProfileDetailPoppup: state.contactProfileData.showProfileDetailPoppup,
+        selectedContactDetails: state.contactProfileData.selectedContactDetails,
     }
 }
 const mapDispatchToProps = dispatch => bindActionCreators({

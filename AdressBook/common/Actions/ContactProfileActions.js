@@ -1,8 +1,8 @@
-import { SHOW_PROFILE_DETAIL_POPPUP } from '../../../AdressBook/common/Actions/ActionTypes';
+import { ADD_SELECTED_CONTACT_DATA } from '../../../AdressBook/common/Actions/ActionTypes';
 
-export const profileDetailModal = (showProfileDetailPoppup) => {
+export const profileDetailModal = (selectedContactDetails) => {
     return {
-        type: SHOW_PROFILE_DETAIL_POPPUP,
-        showProfileDetailPoppup
+        type: ADD_SELECTED_CONTACT_DATA,
+        selectedContactDetails
     }
 }
