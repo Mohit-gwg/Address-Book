@@ -120,7 +120,7 @@ class ContactLists extends PureComponent {
         this._flatlist.scrollToOffset({ x: 845, y: 845, animated: true });
     }
     render() {
-        console.log("check redux stord data which pass through by reducers and taken by action = ", this.props.selectedContactDetails);
+        //console.log("check redux stord data which pass through by reducers and taken by action = ", this.props.selectedContactDetails);
         const { allContactsData } = this.state;
         const { searchContactName } = this.state;
         const { showProfileDetailPoppup } = this.state;
