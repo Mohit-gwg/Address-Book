@@ -1,4 +1,5 @@
 import { ADD_SELECTED_CONTACT_DATA } from '../../../AdressBook/common/Actions/ActionTypes';
+import { IS_NIGHT_MODE_ACTIVE } from '../../../AdressBook/common/Actions/ActionTypes';
 
 const initialState = {
     selectedContactDetails: {
@@ -13,7 +14,8 @@ const initialState = {
         city: '',
         state: '',
         postalCode: '',
-    }
+    },
+    isNightModeActive: 0,
 }
 
 const ContactProfileReducer = (state = initialState, action) => {
@@ -34,6 +36,11 @@ const ContactProfileReducer = (state = initialState, action) => {
                     state: action.selectedContactDetails.state,
                     postalCode: action.selectedContactDetails.postalCode,
                 }
+            }
+        case IS_NIGHT_MODE_ACTIVE:
+            return {
+                ...state,
+                isNightModeActive: action.isNightModeActive,
             }
         default:
             return state;
