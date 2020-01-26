@@ -1,3 +1,18 @@
 {
-    "allContacts": "All Contacts"
+    "allContacts": "All Contacts",
+    "WelcomeTo": "Welcome To",
+    "AddressBook": "Address Book",
+    "AddDetails": "Add Details",
+    "Name": "Name",
+    "Addname": "Add name",
+    "Gender": "Gender",
+    "Male": "Male",
+    "Female": "Female",
+    "Phone": "Phone",
+    "Addphonenumber": "Add phone number",
+    "Email": "Email",
+    "Addemail": "Add email",
+    "Next": "Next",
+    "Pleaseenterallthedetails!": "Please enter all the details!",
+    "SearchContact": "Search Contact"
 }

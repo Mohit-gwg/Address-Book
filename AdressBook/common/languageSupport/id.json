@@ -1,3 +1,18 @@
 {
-    "allContacts": "Semua kontak"
+    "allContacts": "Semua kontak",
+    "WelcomeTo": "Selamat Datang Di",
+    "AddressBook": "Buku Alamat",
+    "AddDetails": "Tambahkan Detail",
+    "Name": "Nama",
+    "Addname": "Tambahkan nama",
+    "Gender": "Jenis kelamin",
+    "Male": "Pria",
+    "Female": "Perempuan",
+    "Phone": "Telepon",
+    "Addphonenumber": "Tambahkan nomor telepon",
+    "Email": "Email",
+    "Addemail": "Tambahkan email",
+    "Next": "Lanjut",
+    "Pleaseenterallthedetails!": "Silakan masukkan semua detail!",
+    "SearchContact": "Cari Kontak"
 }
