@@ -1,8 +1,8 @@
 import { createStackNavigator } from 'react-navigation-stack';
-//import OpenQRScanner from '../../EulogeProject/screens/OpenQRScanner';
+import ContactLists from '../../AdressBook/screens/ContactLists';
 
 const AdressBookStack = createStackNavigator({
-    //OpenQRScanner: { screen: OpenQRScanner },
+    ContactLists: { screen: ContactLists },
 
 });
 

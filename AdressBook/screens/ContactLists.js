@@ -165,25 +165,25 @@ class ContactLists extends PureComponent {
             extrapolate: 'clamp',
         });
         return (
-            <View style={{ flex: 1, backgroundColor: '#fff' }}>
+            <View style={checkNightModeActive == 0 ? styles.mainContainer : styles.mainNightModeContainer}>
                 <Animated.View style={[styles.mainHeader, { height: headerHeight }]}>
-                    <View style={{ backgroundColor: '#00695C', width: '100%', height: UIConstants.vw * 50, alignItems: 'center', justifyContent: 'center', elevation: UIConstants.vw * 2, flexDirection: 'row' }}>
-                        <TouchableOpacity style={{ marginLeft: UIConstants.vw * 16, position: 'absolute', left: 0 }}>
-                            <Image style={{ width: UIConstants.vw * 30, height: UIConstants.vw * 30 }} source={images.profileImage} />
+                    <View style={styles.subHeader}>
+                        <TouchableOpacity style={styles.profileImageView}>
+                            <Image style={styles.headerImages} source={images.profileImage} />
                         </TouchableOpacity>
-                        <Text style={{ fontSize: UIConstants.vw * 20, fontWeight: 'bold', color: '#fff', fontFamily: 'CircularStd-Book', }}>{translate("allContacts")}</Text>
+                        <Text style={styles.headerTitle}>{translate("allContacts")}</Text>
                         {
                             (checkNightModeActive == 1)
                                 ?
                                 (
-                                    <TouchableOpacity style={{ marginRight: UIConstants.vw * 16, position: 'absolute', right: 0 }} onPress={() => checkNightModeActive == 1 ? this.props.isNightModeActive(0) : this.props.isNightModeActive(1)}>
-                                        <Image style={{ width: UIConstants.vw * 30, height: UIConstants.vw * 30 }} source={images.sunImage} />
+                                    <TouchableOpacity style={styles.nightDayImageView} onPress={() => checkNightModeActive == 1 ? this.props.isNightModeActive(0) : this.props.isNightModeActive(1)}>
+                                        <Image style={styles.headerImages} source={images.sunImage} />
                                     </TouchableOpacity>
                                 )
                                 :
                                 (
-                                    <TouchableOpacity style={{ marginRight: UIConstants.vw * 16, position: 'absolute', right: 0 }} onPress={() => checkNightModeActive == 0 ? this.props.isNightModeActive(1) : this.props.isNightModeActive(0)}>
-                                        <Image style={{ width: UIConstants.vw * 30, height: UIConstants.vw * 30 }} source={images.moonImage} />
+                                    <TouchableOpacity style={styles.nightDayImageView} onPress={() => checkNightModeActive == 0 ? this.props.isNightModeActive(1) : this.props.isNightModeActive(0)}>
+                                        <Image style={styles.headerImages} source={images.moonImage} />
                                     </TouchableOpacity>
                                 )
                         }
@@ -192,12 +192,12 @@ class ContactLists extends PureComponent {
                         <LinearGradient
                             colors={['#F8BBD0', '#F48FB1']}
                             start={{ x: 0.0, y: 0.6 }} end={{ x: 0.2, y: 0.80 }}
-                            style={{ width: UIConstants.vw * 34, height: UIConstants.vw * 34, borderRadius: UIConstants.vw * 17, marginLeft: UIConstants.vw * 8, justifyContent: 'center', alignItems: 'center' }}
+                            style={styles.searchImageView}
                         >
-                            <Image style={{ width: UIConstants.vw * 12, height: UIConstants.vw * 12 }} source={images.searchImage} />
+                            <Image style={styles.searchImage} source={images.searchImage} />
                         </LinearGradient>
                         <TextInput
-                            style={{ height: UIConstants.vw * 45, marginLeft: UIConstants.vw * 12, fontFamily: 'CircularStd-Book', width: '80%' }}
+                            style={styles.searchTextInput}
                             underlineColorAndroid='transparent'
                             placeholderTextColor={'#D6D4DC'}
                             maxHeight={40}
@@ -211,32 +211,32 @@ class ContactLists extends PureComponent {
                     (isLoading == true)
                         ?
                         (
-                            <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-                                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                                    <View style={{ backgroundColor: '#009688', borderRadius: UIConstants.vw * 30 / 2, width: UIConstants.vw * 30, height: UIConstants.vw * 30, justifyContent: 'center', alignItems: 'center', marginTop: 5 }}>
-                                        <Image style={{ width: UIConstants.vw * 15, height: UIConstants.vw * 15 }} source={images.phoneImageLoader} />
+                            <View style={styles.loaderMainView}>
+                                <View style={styles.loaderChildView}>
+                                    <View style={styles.phoneImageLoaderView}>
+                                        <Image style={styles.phoneImageLoader} source={images.phoneImageLoader} />
                                     </View>
-                                    <ActivityIndicator size="large" color="#E91E63" style={{ position: 'absolute', top: 0, left: 0, right: 0, justifyContent: 'center', alignItems: 'center' }} />
+                                    <ActivityIndicator size="large" color="#E91E63" style={styles.loader} />
                                 </View>
                             </View>
                         )
                         :
                         (
                             <>
-                                <ContactFlatlist isLoading={isLoading} ref={r => this._flatlist = r} scrollY={scrollY} loadMoreContactData={this.loadMoreContactData} allContactsData={allContactsData} showProfileDetailPoppup={showProfileDetailPoppup} selectedContactProfileData={this.selectedContactProfileData} />
-                                <TouchableOpacity style={{ position: 'absolute', bottom: 0, left: 0, right: 0, justifyContent: 'center', alignItems: 'center', marginBottom: UIConstants.vw * 18, marginLeft: UIConstants.vw * 160, marginRight: UIConstants.vw * 160 }} onPress={() => this.scrollToTop()}>
-                                    <Image style={{ width: UIConstants.vw * 35, height: UIConstants.vw * 35, elevation: UIConstants.vw * 4 }} source={images.topArrowImage} />
+                                <ContactFlatlist checkNightModeActive={checkNightModeActive} isLoading={isLoading} ref={r => this._flatlist = r} scrollY={scrollY} loadMoreContactData={this.loadMoreContactData} allContactsData={allContactsData} showProfileDetailPoppup={showProfileDetailPoppup} selectedContactProfileData={this.selectedContactProfileData} />
+                                <TouchableOpacity style={styles.topScrollButtonView} onPress={() => this.scrollToTop()}>
+                                    <Image style={styles.topScrollImage} source={images.topArrowImage} />
                                 </TouchableOpacity>
                             </>
                         )
                 }
-                <ContactProfileModal showProfileDetailPoppup={showProfileDetailPoppup} selectedContactProfileData={this.selectedContactProfileData} selectedContactDetails={selectedContactDetails} girlImage={images.girlImage} emailImage={images.emailImage} phoneImage={images.phoneImage} addressImage={images.addressImage} />
+                <ContactProfileModal checkNightModeActive={checkNightModeActive} showProfileDetailPoppup={showProfileDetailPoppup} selectedContactProfileData={this.selectedContactProfileData} selectedContactDetails={selectedContactDetails} girlImage={images.girlImage} emailImage={images.emailImage} phoneImage={images.phoneImage} addressImage={images.addressImage} />
             </View>
         );
     }
 }
 
-const ContactFlatlist = React.forwardRef(({ scrollY, loadMoreContactData, allContactsData, showProfileDetailPoppup, selectedContactProfileData }, ref) => {
+const ContactFlatlist = React.forwardRef(({ checkNightModeActive, scrollY, loadMoreContactData, allContactsData, showProfileDetailPoppup, selectedContactProfileData }, ref) => {
     return (
         <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
             <FlatList
@@ -255,14 +255,14 @@ const ContactFlatlist = React.forwardRef(({ scrollY, loadMoreContactData, allCon
                 onEndReached={() => loadMoreContactData()}
                 onEndReachedThreshold={0.8}
                 data={allContactsData.sort((a, b) => a.name.first.localeCompare(b.name.first))}
-                style={{ marginLeft: UIConstants.vw * 8, marginRight: UIConstants.vw * 8 }}
+                style={styles.flatliStyle}
                 renderItem={({ item }) =>
-                    <TouchableOpacity style={{ marginLeft: UIConstants.vw * 16, marginRight: UIConstants.vw * 16, alignItems: 'center', justifyContent: 'center' }} onPress={() => selectedContactProfileData(!showProfileDetailPoppup, item)}>
-                        <View style={{ marginTop: UIConstants.vw * 16, backgroundColor: '#fff', elevation: 2, borderRadius: UIConstants.vw * 30 }}>
-                            <Image style={{ width: UIConstants.vw * 58, height: UIConstants.vw * 58, borderRadius: UIConstants.vw * 58 / 2 }} source={{ uri: `${item && item.picture && item.picture.medium || ''}` }} />
+                    <TouchableOpacity style={styles.contactListMainView} onPress={() => selectedContactProfileData(!showProfileDetailPoppup, item)}>
+                        <View style={styles.contactListProfileImageView}>
+                            <Image style={styles.contactListProfileImage} source={{ uri: `${item && item.picture && item.picture.medium || ''}` }} />
                         </View>
-                        <Text numberOfLines={1} style={{ fontSize: UIConstants.vw * 16, fontWeight: 'bold', color: '#000', marginTop: UIConstants.vw * 8, width: UIConstants.vw * 95 }}>{item && item.name && item.name.first || ''} {item && item.name && item.name.last || ''}</Text>
-                        <Text numberOfLines={1} style={{ fontSize: UIConstants.vw * 12, fontWeight: 'bold', color: '#9E9E9E', marginTop: UIConstants.vw * 2 }}>{item.cell}</Text>
+                        <Text numberOfLines={1} style={checkNightModeActive == 0 ? styles.contactListProfileName : styles.contactListNightModeProfileName}>{item && item.name && item.name.first || ''} {item && item.name && item.name.last || ''}</Text>
+                        <Text numberOfLines={1} style={styles.contactListProfileCellNumber}>{item.cell}</Text>
                     </TouchableOpacity>
                 }
                 keyExtractor={item => item.login.uuid}
@@ -271,7 +271,7 @@ const ContactFlatlist = React.forwardRef(({ scrollY, loadMoreContactData, allCon
     );
 }
 );
-const ContactProfileModal = ({ showProfileDetailPoppup, selectedContactProfileData, selectedContactDetails, girlImage, emailImage, phoneImage, addressImage }) => {
+const ContactProfileModal = ({ checkNightModeActive, showProfileDetailPoppup, selectedContactProfileData, selectedContactDetails, girlImage, emailImage, phoneImage, addressImage }) => {
     return (
         < Modal
             transparent={true}
@@ -290,35 +290,35 @@ const ContactProfileModal = ({ showProfileDetailPoppup, selectedContactProfileDa
                     <View style={{ flex: 1, backgroundColor: '#F48FB1', opacity: 0.9 }} />
                 </TouchableWithoutFeedback >
             }
-            style={{ backgroundColor: 'transparent', marginTop: UIConstants.vw * 0, marginLeft: UIConstants.vw * 0, marginRight: UIConstants.vw * 0, marginBottom: UIConstants.vw * 0, position: 'absolute', bottom: 0, left: 0, right: 0, }}>
-            <View style={{ height: UIConstants.vw * 430, backgroundColor: 'transparent', alignItems: 'center' }}>
-                <View style={{ height: UIConstants.vw * 350, borderTopRightRadius: UIConstants.vw * 160, position: 'absolute', bottom: 0, left: 0, right: 0, alignItems: 'center', backgroundColor: '#fff', justifyContent: 'center' }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: UIConstants.vw * 28 }}>
-                        <Text style={{ fontSize: UIConstants.vw * 26, color: '#616161', fontFamily: 'CircularStd-Book' }}>{selectedContactDetails.firstName} {selectedContactDetails.lastName}</Text>
-                        <Text style={{ fontSize: UIConstants.vw * 26, color: '#616161', fontFamily: 'CircularStd-Book' }}>, </Text>
-                        <Text style={{ fontSize: UIConstants.vw * 26, color: '#F48FB1', fontFamily: 'CircularStd-Book' }}>{selectedContactDetails.age}</Text>
+            style={styles.modal}>
+            <View style={styles.modalMainView}>
+                <View style={checkNightModeActive == 0 ? styles.profileDescriptionModalView : styles.profileDescriptionNightModeModalView}>
+                    <View style={styles.profileNameAgeModalView}>
+                        <Text style={checkNightModeActive == 0 ? styles.modalProfileName : styles.modalNightModeProfileName}>{selectedContactDetails.firstName} {selectedContactDetails.lastName}</Text>
+                        <Text style={checkNightModeActive == 0 ? styles.modalProfileName : styles.modalNightModeProfileName}>, </Text>
+                        <Text style={styles.modalProfileAge}>{selectedContactDetails.age}</Text>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: UIConstants.vw * 24, marginTop: UIConstants.vw * 32, alignSelf: 'flex-start' }}>
-                        <Image resizeMode="center" style={{ width: UIConstants.vw * 28, height: UIConstants.vw * 25, marginRight: UIConstants.vw * 24 }} source={phoneImage} />
-                        <View style={{ alignItems: 'center' }}>
-                            <Text style={{ fontSize: UIConstants.vw * 18, color: '#000', fontFamily: 'CircularStd-Book' }}>{selectedContactDetails.cell}</Text>
-                            <Text style={{ fontSize: UIConstants.vw * 16, color: '#bdbdbd', fontFamily: 'CircularStd-Book', alignSelf: 'flex-start', marginTop: UIConstants.vw * 2 }}>{selectedContactDetails.landlineNumber}</Text>
+                    <View style={styles.modalContactDetailMainView}>
+                        <Image resizeMode="center" style={styles.modalDescriptionImages} source={phoneImage} />
+                        <View style={styles.modalContactAndAdressView}>
+                            <Text style={checkNightModeActive == 0 ? styles.modalProfileMainDescriptionText : styles.modalNightModeProfileMainDescriptionText}>{selectedContactDetails.cell}</Text>
+                            <Text style={styles.modalLandlineAndPostCodeText}>{selectedContactDetails.landlineNumber}</Text>
                         </View>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: UIConstants.vw * 24, marginTop: UIConstants.vw * 24, alignSelf: 'flex-start' }}>
-                        <Image style={{ width: UIConstants.vw * 28, height: UIConstants.vw * 25, marginRight: UIConstants.vw * 24 }} source={emailImage} />
-                        <Text style={{ fontSize: UIConstants.vw * 18, color: '#000', fontFamily: 'CircularStd-Book' }}>{selectedContactDetails.email}</Text>
+                    <View style={styles.modalEmailAndPostCodeMainView}>
+                        <Image style={styles.modalDescriptionImages} source={emailImage} />
+                        <Text style={checkNightModeActive == 0 ? styles.modalProfileMainDescriptionText : styles.modalNightModeProfileMainDescriptionText}>{selectedContactDetails.email}</Text>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: UIConstants.vw * 24, marginTop: UIConstants.vw * 24, alignSelf: 'flex-start' }}>
-                        <Image style={{ width: UIConstants.vw * 28, height: UIConstants.vw * 25, marginRight: UIConstants.vw * 24 }} source={addressImage} />
-                        <View style={{ alignItems: 'center' }}>
-                            <Text numberOfLines={2} style={{ fontSize: UIConstants.vw * 18, color: '#000', fontFamily: 'CircularStd-Book', width: UIConstants.vw * 310 }}>{selectedContactDetails.street}, {selectedContactDetails.city}, {selectedContactDetails.state}</Text>
-                            <Text style={{ fontSize: UIConstants.vw * 16, color: '#bdbdbd', fontFamily: 'CircularStd-Book', alignSelf: 'flex-start', marginTop: UIConstants.vw * 2 }}>Postal Code - {selectedContactDetails.postalCode}</Text>
+                    <View style={styles.modalEmailAndPostCodeMainView}>
+                        <Image style={styles.modalDescriptionImages} source={addressImage} />
+                        <View style={styles.modalContactAndAdressView}>
+                            <Text numberOfLines={2} style={checkNightModeActive == 0 ? styles.modalAddressText : styles.modalNightModeAddressText}>{selectedContactDetails.street}, {selectedContactDetails.city}, {selectedContactDetails.state}</Text>
+                            <Text style={styles.modalLandlineAndPostCodeText}>Postal Code - {selectedContactDetails.postalCode}</Text>
                         </View>
                     </View>
                 </View>
-                <View style={{ height: UIConstants.vw * 145, width: UIConstants.vw * 145, backgroundColor: '#fff', borderRadius: UIConstants.vw * 145 / 2, position: 'absolute', top: 0, justifyContent: 'center', alignItems: 'center', alignSelf: 'center', borderWidth: UIConstants.vw * 8, borderColor: '#fff', elevation: 2 }}>
-                    <Image style={{ width: UIConstants.vw * 134, height: UIConstants.vw * 134, borderRadius: UIConstants.vw * 134 / 2 }} source={{ uri: `${selectedContactDetails.profileImage}` }} />
+                <View style={styles.modalProfileImageView}>
+                    <Image style={styles.modalProfileImage} source={{ uri: `${selectedContactDetails.profileImage}` }} />
                 </View>
             </View>
         </Modal >
@@ -327,6 +327,9 @@ const ContactProfileModal = ({ showProfileDetailPoppup, selectedContactProfileDa
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1, backgroundColor: '#fff'
+    },
+    mainNightModeContainer: {
+        flex: 1, backgroundColor: '#000'
     },
     mainHeader: {
         width: '100%',
@@ -445,6 +448,10 @@ const styles = StyleSheet.create({
     },
 
     // ContactFlatlist ---->
+    flatliStyle: {
+        marginLeft: UIConstants.vw * 8,
+        marginRight: UIConstants.vw * 8
+    },
     contactListMainView: {
         marginLeft: UIConstants.vw * 16,
         marginRight: UIConstants.vw * 16,
@@ -466,6 +473,13 @@ const styles = StyleSheet.create({
         fontSize: UIConstants.vw * 16,
         fontWeight: 'bold',
         color: '#000',
+        marginTop: UIConstants.vw * 8,
+        width: UIConstants.vw * 95
+    },
+    contactListNightModeProfileName: {
+        fontSize: UIConstants.vw * 16,
+        fontWeight: 'bold',
+        color: '#fff',
         marginTop: UIConstants.vw * 8,
         width: UIConstants.vw * 95
     },
@@ -504,14 +518,30 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         justifyContent: 'center'
     },
+    profileDescriptionNightModeModalView: {
+        height: UIConstants.vw * 350,
+        borderTopRightRadius: UIConstants.vw * 160,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+        backgroundColor: '#000',
+        justifyContent: 'center'
+    },
     profileNameAgeModalView: {
         flexDirection: 'row',
         alignItems: 'center',
         marginTop: UIConstants.vw * 28
     },
     modalProfileName: {
-        fontSize: UIConstants.vw * 26,  // coma also
+        fontSize: UIConstants.vw * 26,
         color: '#616161',
+        fontFamily: 'CircularStd-Book'
+    },
+    modalNightModeProfileName: {
+        fontSize: UIConstants.vw * 26,
+        color: '#fff',
         fontFamily: 'CircularStd-Book'
     },
     modalProfileAge: {
@@ -539,6 +569,11 @@ const styles = StyleSheet.create({
         color: '#000',  // for cell text and email text
         fontFamily: 'CircularStd-Book'
     },
+    modalNightModeProfileMainDescriptionText: {
+        fontSize: UIConstants.vw * 18,
+        color: '#fff',  // for cell text and email text
+        fontFamily: 'CircularStd-Book'
+    },
     modalLandlineAndPostCodeText: {
         fontSize: UIConstants.vw * 16,
         color: '#bdbdbd',
@@ -556,6 +591,12 @@ const styles = StyleSheet.create({
     modalAddressText: {
         fontSize: UIConstants.vw * 18,
         color: '#000',
+        fontFamily: 'CircularStd-Book',
+        width: UIConstants.vw * 310
+    },
+    modalNightModeAddressText: {
+        fontSize: UIConstants.vw * 18,
+        color: '#fff',
         fontFamily: 'CircularStd-Book',
         width: UIConstants.vw * 310
     },

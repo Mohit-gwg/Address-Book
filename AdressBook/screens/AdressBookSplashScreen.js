@@ -23,7 +23,7 @@ class AdressBookSplashScreen extends Component {
                 duration: 2000,
             }
         ).start(() => {
-            this.props.navigation.navigate('ContactLists');
+            this.props.navigation.navigate('AddUserDetails');
             setTimeout(() => {
                 this.fadeAnim = new Animated.Value(1);
             }, 5000);

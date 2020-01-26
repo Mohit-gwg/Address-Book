@@ -1,13 +1,13 @@
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import AdressBookSplashScreen from '../../AdressBook/screens/AdressBookSplashScreen';
-import ContactLists from '../../AdressBook/screens/ContactLists';
-//import AdressBookStack from '../../AdressBook/navigation/AdressBookStack';
+import AdressBookStack from '../../AdressBook/navigation/AdressBookStack';
+import AddUserDetails from '../../AdressBook/screens/AddUserDetails';
 
 const Root = createSwitchNavigator(
     {
         AdressBookSplashScreen: AdressBookSplashScreen,
-        ContactLists: ContactLists,
-        //AdressBookStack: AdressBookStack,
+        AddUserDetails: AddUserDetails,
+        AdressBookStack: AdressBookStack,
     },
     {
         initialRouteName: 'AdressBookSplashScreen',
