@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react'
 import { Text, View, TouchableOpacity, TextInput, I18nManager, Image, Animated, ActivityIndicator } from 'react-native';
 import { UIConstants } from '../../AdressBook/screens/staticFile';
+import { URLS } from '../../AdressBook/common/apis';
 import styles from '../../AdressBook/styles/ContactLists';
 import ContactFlatlist from '../../AdressBook/components/ContactFlatlist'
 import ContactProfileModal from '../../AdressBook/components/ContactProfileModal';
@@ -91,7 +92,7 @@ class ContactLists extends PureComponent {
     };
     fetchContactData = () => {
         this.setState({ isLoading: true });
-        fetch(`https://randomuser.me/api/?results=1000&page=${this.state.page}`).then((response) =>
+        fetch(`${URLS.CONTACT_LISTS} + ${this.state.page}`).then((response) =>
             response.json()).then((responseData) => {
                 this.setState({ allContactsData: [...this.state.allContactsData, ...responseData.results], isLoading: false });
             });
