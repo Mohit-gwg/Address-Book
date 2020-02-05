@@ -289,8 +289,8 @@ const styles = StyleSheet.create({
         fontSize: UIConstants.vw * 14,
         paddingTop: UIConstants.vw * 16,
         paddingBottom: UIConstants.vw * 16,
-        paddingLeft: UIConstants.vw * 18,
-        paddingRight: UIConstants.vw * 18
+        paddingLeft: UIConstants.vw * 14,
+        paddingRight: UIConstants.vw * 14
     },
     userImageMainView: {
         height: UIConstants.vw * 110,
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         elevation: UIConstants.vw * 2,
         borderRadius: UIConstants.vw * 16,
-        marginTop: UIConstants.vw * 42,
+        marginTop: UIConstants.vw * 20,
         justifyContent: 'center',
         alignItems: 'center',
         alignSelf: 'center',
